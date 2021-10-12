@@ -62,7 +62,6 @@ function drawImage1(canvasData) {
               });
             return image1Canvas.toDataURL();
           });
-          //
         });
     })
     .catch((err) => {
