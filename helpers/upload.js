@@ -177,7 +177,7 @@ function processQueue(sku, cb) {
       }
 
       const canvasData = {
-        price: productData.price +" FCFA",
+        price: productData.price +" CFA",
         images: images,
         sku: data.sku,
       }

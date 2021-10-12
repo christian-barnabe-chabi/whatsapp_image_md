@@ -1,4 +1,4 @@
-const { createCanvas, loadImage } = require("canvas");
+const { registerFont, createCanvas, loadImage } = require("canvas");
 const chalk = require("chalk");
 const fs = require("fs");
 const path = require("path");
@@ -7,6 +7,8 @@ const uuid = require("uuid").v4;
 
 const outFolder = path.join(__dirname, "../out");
 const tempFolder = path.join(__dirname, "../temp");
+
+registerFont(path.join(__dirname, "../", "public", "fonts", "Program-Bold.ttf"), {family: "Program", style: "17px", weight: 500});
 
 const canvasWidth = 800;
 const canvasHeight = 1200;
@@ -186,7 +188,7 @@ function drawLogoContainer(data = null) {
   ctx.fillRect(hPosition, vPosition, width, height);
 }
 
-function drawLogo(re) {
+function drawLogo() {
   const width = 157;
   const height = 21;
 
@@ -195,6 +197,11 @@ function drawLogo(re) {
 
   loadImage(logoImageUrl).then((image) => {
     ctx.drawImage(image, hPosition, vPosition, width, height);
+  });
+  
+  
+  loadImage(logoImageUrl).then((image) => {
+    ctx.drawImage(image, canvasWidth/1.60, canvasHeight/4, width, height);
   });
 }
 
@@ -215,7 +222,7 @@ function drawSkuContainer(text) {
   ctx.fillRect(hPosition, vPosition, width, height);
 
   ctx.fillStyle = "grey";
-  ctx.font = fontSize + "px Sans";
+  ctx.font = `${fontSize}px 'Program Bold'`;
   ctx.fillText(text, textHPosition, textVPosition, width, height);
 }
 
@@ -229,7 +236,7 @@ function drawLeftPrice(text) {
   const vPosition = 40 + fontSize + image1Height - height / 2 + 40;
 
   ctx.fillStyle = "black";
-  ctx.font = fontSize + "px Sans";
+  ctx.font = `${fontSize}px 'Program Bold'`;
   ctx.fillText(text, hPosition, vPosition, width, height);
 }
 
@@ -243,7 +250,7 @@ function drawRightPrice(text) {
   const vPosition = 40 + fontSize + image1Height - height / 2 + 40;
 
   ctx.fillStyle = "black";
-  ctx.font = fontSize + "px Sans";
+  ctx.font = `${fontSize}px 'Program Bold'`;
   ctx.fillText(text, hPosition, vPosition, width, height);
 }
 
@@ -259,7 +266,7 @@ function drawCenterPrice(text) {
   const vPosition = -37 + fontSize + image1Height - height / 2 + 40;
 
   ctx.fillStyle = "black";
-  ctx.font = fontSize + "px Sans";
+  ctx.font = `${fontSize}px 'Program Bold'`;
   ctx.fillText(text, hPosition, vPosition, width, height);
 }
 
