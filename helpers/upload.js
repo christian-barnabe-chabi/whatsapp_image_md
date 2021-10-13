@@ -2,19 +2,49 @@ const path = require('path');
 const fs = require('fs');
 const chalk = require('chalk');
 const parseXlsx = require('excel').default;
-const axios = require('axios').default;
 const wooc = require('./woocommerce');
 const buildCanvas = require('./buildCanvas');
 const Queue = require('better-queue');
 const dirTree = require('directory-tree');
-const { resolve } = require('path');
 
+var errors = [];
 const queue = new Queue(processQueue);
 queue.on("task_finish", (taskId, result) => {
-  console.log(chalk.green("Success:"+ result));
+
+  const progress = Math.ceil(((result.index+1) * 100) / result.count);
+
+  if(process.env.DEBUG == "true") {
+    console.log(chalk.blue.bold(`[${progress}%]`) + "\t" +chalk.green(`Complete: ${result.sku}`));
+  } else {
+    console.log(chalk.blue.bold(`[${progress}%]`) + "\tcomplete");
+  }
+
+  if(result.last) {
+    if(errors.length > 0) {
+      console.log(chalk.bgRed("Task complete with error"));
+    } else {
+      console.log(chalk.bgBlue("Task complete"));
+    }
+    errors = [];
+  }
+
 })
-queue.on("task_failed", (taskId, error) => {
-  console.log(chalk.red("Failed: "+ error));
+
+queue.on("task_failed", (taskId, errorData) => {
+  const progress = Math.ceil(((errorData.index+1) * 100) / errorData.count);
+
+  if(process.env.DEBUG == "true") {
+    console.log(chalk.red.bold(`[${progress}%]`) + "\t"+ `: ${errorData.sku} - ${errorData.error}`);
+  } else {
+    console.log(chalk.red.bold(`[${progress}%]`) + "\t"+ errorData.error);
+  }
+
+  errors.push(errorData);
+
+  if(errorData.last) {
+    console.log(chalk.bgRed("Task complete with error"));
+    errors = [];
+  }
 })
 
 
@@ -51,41 +81,52 @@ async function uploadProductSheet(req, res) {
   }
 
   const responseData = [];
+  skus.unshift("X8-201");
   for(sku of skus) {
-    queue.push(sku);
+    let isLast = false;
+
+    if(sku === skus[skus.length - 1]) {
+      isLast = true;
+    }
+
+    const skuData = {sku: sku, last: isLast, count: skus.length, index: skus.indexOf(sku)};
+    queue.push(skuData);
   }
 
   res.send(responseData);
 }
 
 function uploadForm(req, res) {
-  res.render('form');
+  const config = require("../config/folders.json");
+  res.render('form', {config: config});
 }
 
 function getProductData(filePath) {
-  console.log(chalk.bgGreen("================== PARSING =================="));
-  console.log(filePath);
+  if(process.env.DEBUG == "true") {
+    console.log(chalk.bgGreen("================== PARSING =================="));
+    console.log(filePath);
+  }
+
   return parseXlsx(filePath).then((rows) => {
     return rows;
   }).catch(error => {
-    console.log("================== ERROR ==================");
+    console.log(chalk.bgRed("================== ERROR =================="));
     console.log(error);
     console.log(chalk.yellow(filePath));
-    console.log("================== ERROR ==================");
+    console.log(chalk.bgRed("================== ERROR =================="));
   })
 }
 
 function getImages(sku) {
-  console.log(process.env.IMAGE_SOURCE_FOLDER);
-  // console.log(sku);
-
   const regex = /(\w*)-(\w*)/gi;
 
   const [fullSku, category, serie] = regex.exec(sku);
 
   // TODO check path
 
-  const skuPath = path.join(process.env.IMAGE_SOURCE_FOLDER, category, fullSku);
+  const {sourceFolder} = require("../config/folders.json");
+  const skuPath = path.join(sourceFolder, category, fullSku);
+  // const skuPath = path.join(process.env.IMAGE_SOURCE_FOLDER, category, fullSku);
   const imagePaths = getPaths(dirTree(skuPath));
 
   return new Promise((resolve, reject) => {
@@ -114,7 +155,9 @@ function getPaths(pathObject) {
     } else {
       if (pathObject.hasOwnProperty("path")) {
         pathObject.image = pathObject.path;
-        const shortPath = pathObject.path.replace(process.env.IMAGE_SOURCE_FOLDER, "").replace(/(\\|\/)/gi, "/").replace(/^(\\|\/)/gi, "");
+        const {sourceFolder} = require("../config/folders.json");
+        const shortPath = pathObject.path.replace(sourceFolder, "").replace(/(\\|\/)/gi, "/").replace(/^(\\|\/)/gi, "");
+        // const shortPath = pathObject.path.replace(process.env.IMAGE_SOURCE_FOLDER, "").replace(/(\\|\/)/gi, "/").replace(/^(\\|\/)/gi, "");
         const [category, sku, color, imageName] =shortPath.split("/");
         pathObject.sku = sku;
         pathObject.color = color;
@@ -131,12 +174,8 @@ function getPaths(pathObject) {
   return paths;
 }
 
-function processQueue(sku, cb) {
-  getImages(sku).then(data => {
-
-    // console.log(data);
-    // cb(null, "Complete");
-    // return 0;
+function processQueue(skuData, cb) {
+  getImages(skuData.sku).then(data => {
 
     let images = [];
     const usedColors = [];
@@ -158,7 +197,7 @@ function processQueue(sku, cb) {
     if(images.length < 3) {
       for(imageData of data.imageSet) {
 
-        if(images.includes(imageData.image)) {
+        if(images.includes(imageData.image) && data.imageSet.length > 2) {
           continue;
         }
         images.push(imageData.image);
@@ -172,18 +211,30 @@ function processQueue(sku, cb) {
       console.log(chalk.bgRed(" ++++ Product ++++ "+data.sku));
 
       if(productData.error) {
-        cb(productData.message);
+        skuData.error = productData.message;
+        cb(skuData);
         return;
       }
 
+      const localSenegal = "fr-FR";
+      const localEnglish = "en-US";
+      const currenctyFrench = "CFA";
+      const currenctyGhana = "GHS";
+      const productPrice = productData.price*1;
+
+      const productPriceSenegal = productPrice;
+      const productPriceGhana = productPrice/100;
+
       const canvasData = {
-        price: productData.price +" CFA",
+        price: `${(productPriceSenegal).toLocaleString(localSenegal)} ${currenctyFrench}`,
+        priceGhana: `${(productPriceGhana).toLocaleString(localEnglish)} ${currenctyGhana}`,
         images: images,
         sku: data.sku,
       }
 
       buildCanvas(canvasData);
-      cb(null, data.sku);
+
+      cb(null, skuData);
     });
 
   })

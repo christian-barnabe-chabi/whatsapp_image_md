@@ -5,7 +5,7 @@ const path = require("path");
 const jimp = require("jimp");
 const uuid = require("uuid").v4;
 
-const outFolder = path.join(__dirname, "../out");
+// const outFolder = path.join(__dirname, "../out");
 const tempFolder = path.join(__dirname, "../temp");
 
 registerFont(path.join(__dirname, "../", "public", "fonts", "Program-Bold.ttf"), {family: "Program", style: "17px", weight: 500});
@@ -22,7 +22,7 @@ const image2Height = 360;
 const image3Width = 360;
 const image3Height = 360;
 
-const logoImageUrl = path.join(__dirname, "../public/images/logo.png");
+const logoImageUrl = path.join(__dirname, "../public/images/Logo-transparent.png");
 
 const canvas = createCanvas(canvasWidth, canvasHeight);
 const ctx = canvas.getContext("2d");
@@ -48,7 +48,11 @@ function drawImage1(canvasData) {
         .cover(image1Width, image1Height)
         .quality(100)
         .write(temp, (err, jimp) => {
-          console.log(chalk.yellow.bold("Save complete 1"));
+
+          if(process.env.DEBUG == "true") {
+            console.log(chalk.yellow.bold("Save complete 1"));
+          }
+
           loadImage(temp).then((image) => {
             image1Ctx.drawImage(image, 0, 0, image1Width, image1Height);
             const margin = (canvasWidth - image1Width) / 2;
@@ -85,7 +89,11 @@ function drawImage2(canvasData) {
         .cover(image2Width, image2Height)
         .quality(100)
         .write(temp, (err, jimp) => {
-          console.log(chalk.yellow.bold("Save complete 2"));
+
+          if(process.env.DEBUG == "true") {
+            console.log(chalk.yellow.bold("Save complete 2"));
+          }
+
           loadImage(temp).then((image) => {
             image1Ctx.drawImage(image, 0, 0, image2Width, image2Height);
             loadImage(image1Canvas.toDataURL())
@@ -129,7 +137,11 @@ function drawImage3(canvasData) {
         .cover(image3Width, image3Height)
         .quality(100)
         .write(temp, (err, jimp) => {
-          console.log(chalk.yellow.bold("Save complete 3"));
+
+          if(process.env.DEBUG == "true") {
+            console.log(chalk.yellow.bold("Save complete 3"));
+          }
+
           loadImage(temp).then((image) => {
             image1Ctx.drawImage(image, 0, 0, image3Width, image3Height);
             loadImage(image1Canvas.toDataURL())
@@ -151,9 +163,10 @@ function drawImage3(canvasData) {
                 drawLogo();
                 drawLeftPrice(canvasData.price);
                 drawRightPrice(canvasData.price);
-                drawCenterPrice(canvasData.price);
+                drawCenterPrice(canvasData.priceGhana);
               })
               .then(() => {
+                const {outFolder} = require("../config/folders.json");
                 const out = fs.createWriteStream(
                   path.join(outFolder, `${canvasData.sku}.jpeg`)
                 );
@@ -184,8 +197,14 @@ function drawLogoContainer(data = null) {
   const hPosition = (canvasWidth - width) / 2;
   const vPosition = image1Height - height / 2 + 40;
 
+  const fontSize = 17;
+  ctx.fillStyle = "black";
+  ctx.font = `${fontSize}px 'Program Bold'`;
+  ctx.fillText("By Christian", hPosition, vPosition+45, 70, 22);
+  
   ctx.fillStyle = "white";
   ctx.fillRect(hPosition, vPosition, width, height);
+
 }
 
 function drawLogo() {
@@ -221,7 +240,7 @@ function drawSkuContainer(text) {
   ctx.fillStyle = "white";
   ctx.fillRect(hPosition, vPosition, width, height);
 
-  ctx.fillStyle = "grey";
+  ctx.fillStyle = "black";
   ctx.font = `${fontSize}px 'Program Bold'`;
   ctx.fillText(text, textHPosition, textVPosition, width, height);
 }

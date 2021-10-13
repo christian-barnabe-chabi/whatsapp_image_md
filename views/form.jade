@@ -1,3 +1,16 @@
-form(action='/upload' method='post' enctype='multipart/form-data')
-  input(type='file' name='product-sheet' accept='.xlsx')
-  input(type='submit' value='Submit')
+extends layout
+
+block content
+  form(action='/upload' method='post' enctype='multipart/form-data' id="upload-excel")
+    input(type='file' name='product-sheet' accept='.xlsx')
+    input(type='submit' value='Submit')
+
+  form(action='/config' method='post' id="set-output-folder-form")
+    label(for="output-folder")
+    input(type='text' name='outputFolder' value=config.outFolder id="output-folder")
+    input(type='submit' value='Submit' id="output-folder-submit-btn")
+
+  form(action='/config' method='post' id="set-source-folder-form")
+    label(for="source-folder")
+    input(type='text' name='sourceFolder' value=config.sourceFolder id="source-folder")
+    input(type='submit' value='Submit' id="source-folder-submit-btn")
