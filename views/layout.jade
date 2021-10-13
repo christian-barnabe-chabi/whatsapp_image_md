@@ -3,6 +3,13 @@ html
   head
     title= title
     link(rel='stylesheet', href='/stylesheets/style.css')
+    <!-- UIkit CSS -->
+    link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.7.6/dist/css/uikit.min.css")
+
+    <!-- UIkit JS -->
+    script(src="https://cdn.jsdelivr.net/npm/uikit@3.7.6/dist/js/uikit.min.js")
+    script(src="https://cdn.jsdelivr.net/npm/uikit@3.7.6/dist/js/uikit-icons.min.js")
   body
     block content
+    script(src="https://cdn.socket.io/4.2.0/socket.io.min.js" integrity="sha384-PiBR5S00EtOj2Lto9Uu81cmoyZqR57XcOna1oAuVuIEjzj0wpqDVfD0JA9eXlRsj" crossorigin="anonymous")
     script(src='/javascripts/main.js')

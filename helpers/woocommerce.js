@@ -1,6 +1,6 @@
 // https://www.npmjs.com/package/woocommerce-api
-const chalk = require('chalk');
-const WoocommerceAPI = require('woocommerce-api');
+const chalk = require("chalk");
+const WoocommerceAPI = require("woocommerce-api");
 
 function wooc(slug, next = null) {
   const woocommerce = new WoocommerceAPI({
@@ -8,36 +8,32 @@ function wooc(slug, next = null) {
     consumerKey: process.env.WOOC_KEY,
     consumerSecret: process.env.WOOC_SECRET,
     wpAPI: true,
-    version: "wc/v3"
+    version: "wc/v3",
   });
 
   // const slug = "X5-639"
   woocommerce.get(`products?slug=${slug}`, (err, data) => {
+    if (err) throw new Error(err);
 
-    if(err) throw new Error(err);
-    
     // status code
-    if(data.statusCode != 200) {
-      next({error: true, message: `God ${data.statusCode} from woocom`});
+    if (data.statusCode != 200) {
+      next({ error: true, message: `God ${data.statusCode} from woocom` });
     }
 
     const productData = JSON.parse(data.body);
 
     // data
 
-    if(productData.length === 0) {
-      next({error: true, message: `No product with slug ${slug} found`});
+    if (productData.length === 0) {
+      next({ error: true, message: `No product with slug ${slug} found` });
       return;
     }
 
     // body
-    if(next) {
+    if (next) {
       next(productData[0]);
     }
   });
-
-  // res.send("End");
 }
-
 
 module.exports = wooc;

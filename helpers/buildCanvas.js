@@ -8,7 +8,10 @@ const uuid = require("uuid").v4;
 // const outFolder = path.join(__dirname, "../out");
 const tempFolder = path.join(__dirname, "../temp");
 
-registerFont(path.join(__dirname, "../", "public", "fonts", "Program-Bold.ttf"), {family: "Program", style: "17px", weight: 500});
+registerFont(
+  path.join(__dirname, "../", "public", "fonts", "Program-Bold.ttf"),
+  { family: "Program", style: "17px", weight: 500 }
+);
 
 const canvasWidth = 800;
 const canvasHeight = 1200;
@@ -22,7 +25,10 @@ const image2Height = 360;
 const image3Width = 360;
 const image3Height = 360;
 
-const logoImageUrl = path.join(__dirname, "../public/images/Logo-transparent.png");
+const logoImageUrl = path.join(
+  __dirname,
+  "../public/images/Logo-transparent.png"
+);
 
 const canvas = createCanvas(canvasWidth, canvasHeight);
 const ctx = canvas.getContext("2d");
@@ -48,8 +54,7 @@ function drawImage1(canvasData) {
         .cover(image1Width, image1Height)
         .quality(100)
         .write(temp, (err, jimp) => {
-
-          if(process.env.DEBUG == "true") {
+          if (process.env.DEBUG == "true") {
             console.log(chalk.yellow.bold("Save complete 1"));
           }
 
@@ -89,8 +94,7 @@ function drawImage2(canvasData) {
         .cover(image2Width, image2Height)
         .quality(100)
         .write(temp, (err, jimp) => {
-
-          if(process.env.DEBUG == "true") {
+          if (process.env.DEBUG == "true") {
             console.log(chalk.yellow.bold("Save complete 2"));
           }
 
@@ -137,8 +141,7 @@ function drawImage3(canvasData) {
         .cover(image3Width, image3Height)
         .quality(100)
         .write(temp, (err, jimp) => {
-
-          if(process.env.DEBUG == "true") {
+          if (process.env.DEBUG == "true") {
             console.log(chalk.yellow.bold("Save complete 3"));
           }
 
@@ -166,7 +169,7 @@ function drawImage3(canvasData) {
                 drawCenterPrice(canvasData.priceGhana);
               })
               .then(() => {
-                const {outFolder} = require("../config/folders.json");
+                const { outFolder } = require("../config/folders.json");
                 const out = fs.createWriteStream(
                   path.join(outFolder, `${canvasData.sku}.jpeg`)
                 );
@@ -200,11 +203,10 @@ function drawLogoContainer(data = null) {
   const fontSize = 17;
   ctx.fillStyle = "black";
   ctx.font = `${fontSize}px 'Program Bold'`;
-  ctx.fillText("By Christian", hPosition, vPosition+45, 70, 22);
-  
+  ctx.fillText("By Christian", hPosition, vPosition + 45, 70, 22);
+
   ctx.fillStyle = "white";
   ctx.fillRect(hPosition, vPosition, width, height);
-
 }
 
 function drawLogo() {
@@ -217,10 +219,9 @@ function drawLogo() {
   loadImage(logoImageUrl).then((image) => {
     ctx.drawImage(image, hPosition, vPosition, width, height);
   });
-  
-  
+
   loadImage(logoImageUrl).then((image) => {
-    ctx.drawImage(image, canvasWidth/1.60, canvasHeight/4, width, height);
+    ctx.drawImage(image, canvasWidth / 1.6, canvasHeight / 4, width, height);
   });
 }
 

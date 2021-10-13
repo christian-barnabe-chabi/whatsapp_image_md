@@ -1,16 +1,44 @@
 extends layout
 
 block content
-  form(action='/upload' method='post' enctype='multipart/form-data' id="upload-excel")
-    input(type='file' name='product-sheet' accept='.xlsx')
-    input(type='submit' value='Submit')
+  div.uk-grid
+    div.uk-width-1-2
+      form#upload-excel-form(action='/upload' method='post' enctype='multipart/form-data')
+        fieldset.uk-fieldset
+          legend.uk-legend Chose file to upload (.xlsx only)
+          div.uk-margin
+            div.uk-inline(uk-form-custom="target: true")
+              span.uk-form-icon(uk-icon="icon: cloud-upload")
+              input.uk-input(type='file' name='product-sheet' accept='.xlsx' id="file-upload-field")
+              input.uk-input.uk-form-width-large(type='text' name='product-sheet' placeholder="Select file" disabled)
+          div.uk-margin
+            button.uk-button.uk-button-danger#upload-btn(type='submit')
+              div#upload-spinner(uk-spinner)
+              span Upload
+          div.uk-margin
+            div Progress
+            progress.uk-progress#progress-bar(value="0" max="100")
 
-  form(action='/config' method='post' id="set-output-folder-form")
-    label(for="output-folder")
-    input(type='text' name='outputFolder' value=config.outFolder id="output-folder")
-    input(type='submit' value='Submit' id="output-folder-submit-btn")
+      form.uk-margin#set-output-folder-form(action='/config' method='post')
+        fieldset.uk-fieldset
+          legend.uk-legend Output Folder
+          div.uk-margin
+            div.uk-inline
+              span.uk-form-icon(uk-icon="icon: folder")
+              input.uk-input.uk-form-width-large#output-folder(type='text' name='outputFolder' value=config.outFolder)
+          div.uk-margin
+            input.uk-button.uk-button-danger#output-folder-submit-btn(type='submit' value='Save')
 
-  form(action='/config' method='post' id="set-source-folder-form")
-    label(for="source-folder")
-    input(type='text' name='sourceFolder' value=config.sourceFolder id="source-folder")
-    input(type='submit' value='Submit' id="source-folder-submit-btn")
+      form.uk-margin#set-source-folder-form(action='/config' method='post')
+        fieldset.uk-fieldset
+          legend.uk-legend Source Folder
+          div.uk-margin
+            div.uk-inline
+              span.uk-form-icon(uk-icon="icon: folder")
+              input.uk-input.uk-form-width-large#source-folder(type='text' name='sourceFolder' value=config.sourceFolder)
+          div.uk-margin
+            input.uk-button.uk-button-danger#source-folder-submit-btn(type='submit' value='Save')
+    div.uk-width-1-2
+      h3 Preview
+      div.uk-card.uk-card-default.uk-card-body
+        img#preview-image(src="images/Logo-transparent.png")
