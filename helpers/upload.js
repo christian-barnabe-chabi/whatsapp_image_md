@@ -74,17 +74,6 @@ queue.on("task_failed", (taskId, errorData) => {
 
   errors.push({sku: errorData.sku, message: errorData.message || `An error occurs with ${errorData}.sku`});
 
-  if(errorData.error) {
-    if (errorData.socket) {
-      errorData.socket.emit("notification", {
-        message: errorData.error || `An error occurs with ${errorData}.sku`,
-        errors: true,
-        sku: errorData.sku,
-        progress: progress,
-      });
-    }
-  }
-
   if (errorData.last) {
     console.log(chalk.bgRed("Task complete with error"));
     if (errorData.socket) {
@@ -214,7 +203,13 @@ function getImages(sku) {
 
   const { sourceFolder } = require("../config/folders.json");
   const skuPath = path.join(sourceFolder, category, fullSku);
-  // const skuPath = path.join(process.env.IMAGE_SOURCE_FOLDER, category, fullSku);
+
+  if(fs.existsSync(skuPath) == false) {
+    return new Promise((resolve, reject) => {
+      resolve({ imageSet: [], sku: sku });
+    });
+  }
+
   const imagePaths = getPaths(dirTree(skuPath));
 
   return new Promise((resolve, reject) => {
