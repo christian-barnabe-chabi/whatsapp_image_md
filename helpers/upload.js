@@ -146,7 +146,7 @@ async function uploadProductSheet(req, res) {
 
   fs.rmSync(output);
 
-  const skus = ["X5-639", "X5-639", "X10-639", "X9-639", "X5-659", "X15-639"];
+  const skus = [];
 
   for (let i = 0; i < rows.length; i++) {
     // get sku xxx-xxx format
