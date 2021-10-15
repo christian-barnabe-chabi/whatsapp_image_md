@@ -2,10 +2,13 @@ const path = require("path");
 const fs = require("fs");
 const chalk = require("chalk");
 const parseXlsx = require("excel").default;
-const wooc = require("../data/woocommerce");
 const buildCanvas = require("./buildCanvas");
 const Queue = require("better-queue");
 const dirTree = require("directory-tree");
+const woocSenegal = require("../data/wooc-sn");
+const woocGhana = require("../data/wooc-gh");
+const woocGabon = require("../data/wooc-ga");
+const woocIvory = require("../data/wooc-ci");
 
 var errors = [];
 const queue = new Queue(processQueue);
@@ -28,7 +31,7 @@ queue.on("task_finish", (taskId, result) => {
       if (result.socket) {
         result.socket.emit("task_finished", {
           message: "Task complete with error",
-          errors: true,
+          errors: errors,
           sku: result.sku,
           progress: progress,
         });
@@ -49,6 +52,10 @@ queue.on("task_finish", (taskId, result) => {
       result.socket.emit("progress", { progress: progress, sku: result.sku });
     }
   }
+
+  if (result.socket) {
+    result.socket.emit('message', `Task progress ${progress}%`);
+  }
 });
 
 queue.on("task_failed", (taskId, errorData) => {
@@ -64,14 +71,26 @@ queue.on("task_failed", (taskId, errorData) => {
     console.log(chalk.red.bold(`[${progress}%]`) + "\t" + errorData.error);
   }
 
-  errors.push(errorData);
+
+  errors.push({sku: errorData.sku, message: errorData.message || `An error occurs with ${errorData}.sku`});
+
+  if(errorData.error) {
+    if (errorData.socket) {
+      errorData.socket.emit("notification", {
+        message: errorData.error || `An error occurs with ${errorData}.sku`,
+        errors: true,
+        sku: errorData.sku,
+        progress: progress,
+      });
+    }
+  }
 
   if (errorData.last) {
     console.log(chalk.bgRed("Task complete with error"));
-    if (result.socket) {
-      result.socket.emit("task_finished", {
-        message: "Task complete with error",
-        errors: true,
+    if (errorData.socket) {
+      errorData.socket.emit("task_finished", {
+        message: errorData.message || "Task complete with error",
+        errors: errors,
         sku: errorData.sku,
         progress: progress,
       });
@@ -87,7 +106,16 @@ queue.on("task_failed", (taskId, errorData) => {
       });
     }
   }
+
+  if (errorData.socket) {
+    errorData.socket.emit('message', `Task progress ${progress}%`);
+  }
 });
+
+function uploadForm(req, res) {
+  const config = require("../config/folders.json");
+  res.render("form", { config: config });
+}
 
 async function uploadProductSheet(req, res) {
   const socket = req.app.get("socketio");
@@ -129,7 +157,7 @@ async function uploadProductSheet(req, res) {
 
   fs.rmSync(output);
 
-  const skus = [];
+  const skus = ["X5-639", "X5-639", "X10-639", "X9-639", "X5-659", "X15-639"];
 
   for (let i = 0; i < rows.length; i++) {
     // get sku xxx-xxx format
@@ -157,11 +185,6 @@ async function uploadProductSheet(req, res) {
   }
 
   res.send(responseData);
-}
-
-function uploadForm(req, res) {
-  const config = require("../config/folders.json");
-  res.render("form", { config: config });
 }
 
 function getProductData(filePath) {
@@ -241,6 +264,7 @@ function getPaths(pathObject) {
 
 function processQueue(skuData, cb) {
   getImages(skuData.sku).then((data) => {
+
     let images = [];
     const usedColors = [];
 
@@ -257,6 +281,12 @@ function processQueue(skuData, cb) {
       usedColors.push(imageData.color);
     }
 
+    if(images.length == 0) {
+      skuData.error = `Images not found for ${skuData.sku}`;
+      cb(skuData);
+      return;
+    }
+
     if (images.length < 3) {
       for (imageData of data.imageSet) {
         if (images.includes(imageData.image) && data.imageSet.length > 2) {
@@ -268,41 +298,101 @@ function processQueue(skuData, cb) {
 
     images.splice(3);
 
-    wooc(data.sku, (productData) => {
-      if (process.env.DEBUG === "true")
-        console.log(chalk.bgRed(" ++++ Product ++++ " + data.sku));
-
-      if (productData.error) {
-        skuData.error = productData.message;
-        cb(skuData);
-        return;
+    function getFromSenegal(sku) {
+      if (process.env.DEBUG === "true") {
+        console.log(chalk.bgRed(" ++++ SN: Product ++++ " + sku));
+      }
+      
+      woocSenegal(sku, productData => {
+        if (productData.error) {
+          getFromGhana(sku);
+          return;
+        }
+        prepareBuild(productData, images, skuData, cb);
+      });
+    }
+    
+    function getFromGhana(sku) {
+      if (process.env.DEBUG === "true") {
+        console.log(chalk.bgRed(" ++++ GH: Product ++++ " + sku));
       }
 
-      const localSenegal = "fr-FR";
-      const localEnglish = "en-US";
-      const currenctyFrench = "CFA";
-      const currenctyGhana = "GHC";
-      const productPrice = productData.price * 1;
+      woocGhana(sku, productData => {
+        if (productData.error) {
+          getFromGabon(sku);
+          return;
+        }
+        prepareBuild(productData, images, skuData, cb, true);
+      });
+    }
+    
+    function getFromGabon(sku) {
+      if (process.env.DEBUG === "true") {
+        console.log(chalk.bgRed(" ++++ GA: Product ++++ " + sku));
+      }
 
-      const productPriceSenegal = productPrice;
-      const productPriceGhana = productPrice / 100;
+      woocGabon(sku, productData => {
+        if (productData.error) {
+          getFromIvory(sku);
+          return;
+        }
+        prepareBuild(productData, images, skuData, cb);
+      });
+    }
+    
+    function getFromIvory(sku) {
+      if (process.env.DEBUG === "true") {
+        console.log(chalk.bgRed(" ++++ CI: Product ++++ " + sku));
+      }
 
-      const canvasData = {
-        price: `${productPriceSenegal.toLocaleString(
-          localSenegal
-        )} ${currenctyFrench}`,
-        priceGhana: `${productPriceGhana.toLocaleString(
-          localEnglish
-        )} ${currenctyGhana}`,
-        images: images,
-        sku: data.sku,
-      };
+      woocIvory(sku, productData => {
+        if (productData.error) {
+          skuData.error = productData.message;
+          cb(skuData);
+          return;
+        }
+        prepareBuild(productData, images, skuData, cb);
+      });
+    }
 
-      buildCanvas(canvasData);
+    getFromSenegal(data.sku);
 
-      cb(null, skuData);
-    });
   });
+}
+
+function prepareBuild(productData, images, skuData, cb, isFromGhana = false) {
+  const localSenegal = "fr-FR";
+  const localEnglish = "en-US";
+  const currenctyFrench = "CFA";
+  const currenctyGhana = "GHC";
+  const productPrice = productData.price * 1;
+
+  let productPriceSenegal = 0;
+  let productPriceGhana = 0;
+
+  if(isFromGhana) {
+    productPriceSenegal = Math.ceil(productPrice * 100);
+    productPriceGhana = productPrice;
+  } else {
+    productPriceSenegal = productPrice;
+    productPriceGhana = productPrice / 100;
+  }
+
+  const canvasData = {
+    price: `${productPriceSenegal.toLocaleString(
+      localSenegal
+    )} ${currenctyFrench}`,
+    priceGhana: `${productPriceGhana.toLocaleString(
+      localEnglish
+    )} ${currenctyGhana}`,
+    images: images,
+    sku: productData.sku,
+    socket: skuData.socket || undefined,
+  };
+
+  buildCanvas(canvasData);
+
+  cb(null, skuData);
 }
 
 module.exports = { uploadProductSheet, uploadForm };

@@ -13,12 +13,13 @@ block content
                 input.uk-input(type='file' name='product-sheet' accept='.xlsx' id="file-upload-field")
                 input.uk-input.uk-form-width-large(type='text' name='product-sheet' placeholder="Select file" disabled)
             div.uk-margin
-              button.uk-button.uk-button-danger#upload-btn(type='submit')
+              button.uk-button.uk-button-primary#upload-btn(type='submit')
                 div#upload-spinner(uk-spinner)
                 span Upload
             div.uk-margin(style="width: 500px")
               div Progress
-              progress.uk-progress#progress-bar(value="0" max="100")
+              progress.uk-progress#progress-bar(value="0" max="100" style="margin-bottom: 0px")
+              small#socket-message
 
         form.uk-margin#set-output-folder-form(action='/config' method='post')
           fieldset.uk-fieldset
@@ -30,10 +31,12 @@ block content
               div
                 small You should restart the app for better performance.
             div.uk-margin
-              input.uk-button.uk-button-danger#output-folder-submit-btn(type='submit' value='Save')
-              a.uk-button-link#open-output-folder-btn.uk-icon-button(uk-icon="icon: folder")
+              input.uk-button.uk-button-primary#output-folder-submit-btn(type='submit' value='Save')
+              div.uk-inline
+                span.uk-form-icon(uk-icon="icon: folder") 
+                button.uk-button.uk-button#open-output-folder-btn(type="button") Open folder
 
-        form.uk-margin#set-source-folder-form(action='/config' method='post')
+        form.uk-margin#set-source-folder-form(action='/config' method='post' style="margin-bottom: 0px")
           fieldset.uk-fieldset
             legend.uk-legend Source Folder
             div.uk-margin
@@ -41,10 +44,15 @@ block content
                 span.uk-form-icon(uk-icon="icon: folder")
                 input.uk-input.uk-form-width-large#source-folder(type='text' name='sourceFolder' value=config.sourceFolder)
             div.uk-margin
-              input.uk-button.uk-button-danger#source-folder-submit-btn(type='submit' value='Save')
-              a.uk-button-link#open-source-folder-btn.uk-icon-button(uk-icon="icon: folder")
-              
+              input.uk-button.uk-button-primary#source-folder-submit-btn(type='submit' value='Save')
+
+              div.uk-inline
+                span.uk-form-icon(uk-icon="icon: folder") 
+                button.uk-button.uk-button#open-source-folder-btn(type="button") Open folder
+
+        div#errors(style="height: 180px; width: 100%; font-size: 12px; overflow-y: auto; background-color: black; color: white; padding: 5px") 
+          strong Errors Console     
       div.uk-width-1-2
-        div.uk-card.uk-card-default.uk-card-body.uk-background-muted
-          div.uk-card-media-left.uk-cover-container
-            img#preview-image(src="images/Logo-transparent.png")
+        div.uk-card.uk-card-default.uk-card-body.uk-background-muted#preview-card(style="padding: 5px; height: 848px; overflow: auto")
+          div.uk-card-media-left.uk-cover-container#preview-container(style="min-height: 100%; text-align: center;")
+            img#preview-image(src="images/Logo-transparent.png" style="position: relative; top: 400px")
