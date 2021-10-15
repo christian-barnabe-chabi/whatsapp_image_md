@@ -1,11 +1,9 @@
 const fs = require("fs");
 const path = require("path");
+const open = require("open");
 
 function settings(req, res) {
   const config = require("../config/folders.json");
-
-  console.log(req.body);
-
   if (
     req.body.outputFolder == undefined &&
     req.body.sourceFolder == undefined
@@ -45,6 +43,7 @@ function settings(req, res) {
     }
 
     config.outFolder = req.body.outputFolder;
+    return res.json({ success: true, message: "Updated. Please restart the app" });
   }
 
   if (req.body.sourceFolder != undefined) {
@@ -75,4 +74,14 @@ function settings(req, res) {
   res.json({ success: true, message: "Updated" });
 }
 
-module.exports = settings;
+function openSourceFolder(req, res) {
+  open(require('../config/folders.json').sourceFolder);
+  res.json({success: true});
+}
+
+function openOutputFolder(req, res) {
+  open(require('../config/folders.json').outFolder);
+  res.json({success: true});
+}
+
+module.exports = {settings, openOutputFolder, openSourceFolder};

@@ -2,7 +2,7 @@ const path = require("path");
 const fs = require("fs");
 const chalk = require("chalk");
 const parseXlsx = require("excel").default;
-const wooc = require("./woocommerce");
+const wooc = require("../data/woocommerce");
 const buildCanvas = require("./buildCanvas");
 const Queue = require("better-queue");
 const dirTree = require("directory-tree");
@@ -126,6 +126,8 @@ async function uploadProductSheet(req, res) {
   fs.renameSync(filePath, output);
 
   const rows = await getProductData(output);
+
+  fs.rmSync(output);
 
   const skus = [];
 

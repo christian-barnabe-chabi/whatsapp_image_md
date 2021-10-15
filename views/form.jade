@@ -1,44 +1,50 @@
 extends layout
 
 block content
-  div.uk-grid
-    div.uk-width-1-2
-      form#upload-excel-form(action='/upload' method='post' enctype='multipart/form-data')
-        fieldset.uk-fieldset
-          legend.uk-legend Chose file to upload (.xlsx only)
-          div.uk-margin
-            div.uk-inline(uk-form-custom="target: true")
-              span.uk-form-icon(uk-icon="icon: cloud-upload")
-              input.uk-input(type='file' name='product-sheet' accept='.xlsx' id="file-upload-field")
-              input.uk-input.uk-form-width-large(type='text' name='product-sheet' placeholder="Select file" disabled)
-          div.uk-margin
-            button.uk-button.uk-button-danger#upload-btn(type='submit')
-              div#upload-spinner(uk-spinner)
-              span Upload
-          div.uk-margin
-            div Progress
-            progress.uk-progress#progress-bar(value="0" max="100")
+  div.uk-container
+    div.uk-grid
+      div.uk-width-1-2
+        form#upload-excel-form(action='/upload' method='post' enctype='multipart/form-data')
+          fieldset.uk-fieldset
+            legend.uk-legend Chose file to upload (.xlsx only)
+            div.uk-margin
+              div.uk-inline(uk-form-custom="target: true")
+                span.uk-form-icon(uk-icon="icon: cloud-upload")
+                input.uk-input(type='file' name='product-sheet' accept='.xlsx' id="file-upload-field")
+                input.uk-input.uk-form-width-large(type='text' name='product-sheet' placeholder="Select file" disabled)
+            div.uk-margin
+              button.uk-button.uk-button-danger#upload-btn(type='submit')
+                div#upload-spinner(uk-spinner)
+                span Upload
+            div.uk-margin(style="width: 500px")
+              div Progress
+              progress.uk-progress#progress-bar(value="0" max="100")
 
-      form.uk-margin#set-output-folder-form(action='/config' method='post')
-        fieldset.uk-fieldset
-          legend.uk-legend Output Folder
-          div.uk-margin
-            div.uk-inline
-              span.uk-form-icon(uk-icon="icon: folder")
-              input.uk-input.uk-form-width-large#output-folder(type='text' name='outputFolder' value=config.outFolder)
-          div.uk-margin
-            input.uk-button.uk-button-danger#output-folder-submit-btn(type='submit' value='Save')
+        form.uk-margin#set-output-folder-form(action='/config' method='post')
+          fieldset.uk-fieldset
+            legend.uk-legend Output Folder
+            div.uk-margin
+              div.uk-inline
+                span.uk-form-icon(uk-icon="icon: folder")
+                input.uk-input.uk-form-width-large#output-folder(type='text' name='outputFolder' value=config.outFolder)
+              div
+                small You should restart the app for better performance.
+            div.uk-margin
+              input.uk-button.uk-button-danger#output-folder-submit-btn(type='submit' value='Save')
+              a.uk-button-link#open-output-folder-btn.uk-icon-button(uk-icon="icon: folder")
 
-      form.uk-margin#set-source-folder-form(action='/config' method='post')
-        fieldset.uk-fieldset
-          legend.uk-legend Source Folder
-          div.uk-margin
-            div.uk-inline
-              span.uk-form-icon(uk-icon="icon: folder")
-              input.uk-input.uk-form-width-large#source-folder(type='text' name='sourceFolder' value=config.sourceFolder)
-          div.uk-margin
-            input.uk-button.uk-button-danger#source-folder-submit-btn(type='submit' value='Save')
-    div.uk-width-1-2
-      h3 Preview
-      div.uk-card.uk-card-default.uk-card-body
-        img#preview-image(src="images/Logo-transparent.png")
+        form.uk-margin#set-source-folder-form(action='/config' method='post')
+          fieldset.uk-fieldset
+            legend.uk-legend Source Folder
+            div.uk-margin
+              div.uk-inline
+                span.uk-form-icon(uk-icon="icon: folder")
+                input.uk-input.uk-form-width-large#source-folder(type='text' name='sourceFolder' value=config.sourceFolder)
+            div.uk-margin
+              input.uk-button.uk-button-danger#source-folder-submit-btn(type='submit' value='Save')
+              a.uk-button-link#open-source-folder-btn.uk-icon-button(uk-icon="icon: folder")
+              
+      div.uk-width-1-2
+        div.uk-card.uk-card-default.uk-card-body.uk-background-muted
+          div.uk-card-media-left.uk-cover-container
+            img#preview-image(src="images/Logo-transparent.png")

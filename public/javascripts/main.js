@@ -17,11 +17,11 @@ window.onload = () => {
   uploadSpinner.style.display = "none";
 
   socket.on("connect", () => {
-    console.log("socket connected");
+    // console.log("socket connected");
   });
 
   socket.on("disconnect", () => {
-    console.log("socket disconnected");
+    // console.log("socket disconnected");
   });
 
   socket.on("progress", (data) => {
@@ -47,7 +47,7 @@ window.onload = () => {
     UIkit.notification({
       message: message,
       status: status,
-      pos: "top-right",
+      pos: "top-center",
       timeout: 5000,
     });
   });
@@ -66,7 +66,7 @@ window.onload = () => {
     UIkit.notification({
       message: message,
       status: status,
-      pos: "top-right",
+      pos: "top-center",
       timeout: 5000,
     });
 
@@ -86,7 +86,6 @@ window.onload = () => {
     fetch("/upload", { method: "POST", body: formdata })
       .then(async (data) => {
         const response = await data.json();
-        console.log(response);
         if (data.status != 200) {
           uploadSpinner.style.display = "none";
           uploadBtn.removeAttribute("disabled");
@@ -161,4 +160,20 @@ window.onload = () => {
         console.log(err);
       });
   });
+
+  document
+    .querySelector("#open-source-folder-btn")
+    .addEventListener("click", (event) => {
+      fetch("/config/source", {
+        method: "POST",
+      }).then(() => {});
+    });
+
+  document
+    .querySelector("#open-output-folder-btn")
+    .addEventListener("click", (event) => {
+      fetch("/config/output", {
+        method: "POST",
+      }).then(() => {});
+    });
 };

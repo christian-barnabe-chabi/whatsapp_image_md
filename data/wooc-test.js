@@ -2,7 +2,7 @@
 const chalk = require("chalk");
 const WoocommerceAPI = require("woocommerce-api");
 
-function wooc(slug, next = null) {
+function woocTest(slug, next = null) {
   const woocommerce = new WoocommerceAPI({
     url: process.env.WOOC_URL,
     consumerKey: process.env.WOOC_KEY,
@@ -36,4 +36,4 @@ function wooc(slug, next = null) {
   });
 }
 
-module.exports = wooc;
+module.exports = woocTest;
