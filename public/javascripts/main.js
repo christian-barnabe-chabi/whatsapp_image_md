@@ -11,17 +11,50 @@ window.onload = () => {
   const sourceForm = document.querySelector("#set-source-folder-form");
 
   const previewImage = document.querySelector("#preview-image");
+  const previewContainer = document.querySelector("#preview-container");
+  const previewCard = document.querySelector("#preview-card");
+
+  const socketMessage = document.querySelector("#socket-message");
+
+  const errorsConsole = document.querySelector("#errors");
+
+  socketMessage.style.transition = "opacity 0.5s ease";
 
   const socket = io();
+
+  function enableButtons() {
+    uploadSpinner.style.display = "none";
+    uploadBtn.removeAttribute("disabled");
+    sourceBtn.removeAttribute("disabled");
+    outputBtn.removeAttribute("disabled");
+
+    setTimeout(() => {
+      socketMessage.style.opacity = 0;
+      socketMessage.innerText = "";
+    }, 6000);
+  }
+
+  function disableButtons() {
+    uploadSpinner.style.display = "inline-block";
+    uploadBtn.setAttribute("disabled", true);
+    sourceBtn.setAttribute("disabled", true);
+    outputBtn.setAttribute("disabled", true);
+
+    socketMessage.style.opacity = 1;
+  }
 
   uploadSpinner.style.display = "none";
 
   socket.on("connect", () => {
-    console.log("socket connected");
+    // console.log("socket connected");
   });
 
   socket.on("disconnect", () => {
-    console.log("socket disconnected");
+    enableButtons();
+  });
+
+  socket.on("message", message => {
+    socketMessage.innerText = message;
   });
 
   socket.on("progress", (data) => {
@@ -30,7 +63,11 @@ window.onload = () => {
       uploadBtn.removeAttribute("disabled");
     }
 
-    previewImage.setAttribute("src", data.sku + ".jpeg");
+    if(data.error) {
+      const errorHtml = document.createElement('p');
+      errorHtml.innerText = `${data.sku}: ${data.message}`;
+      errorsConsole.appendChild(errorHtml);
+    } 
 
     progressBar.setAttribute("value", data.progress);
   });
@@ -47,9 +84,23 @@ window.onload = () => {
     UIkit.notification({
       message: message,
       status: status,
-      pos: "top-right",
+      pos: "top-center",
       timeout: 5000,
     });
+  });
+
+  socket.on("update_image", sku => {
+    previewImage.remove();
+
+    const image = new Image(555.5, 833.25);
+    image.src = `${sku}.jpeg`;
+    image.style.marginBottom = "5px";
+    const caption = document.createElement("p");
+    caption.innerText = sku;
+    previewContainer.appendChild(caption);
+    previewContainer.appendChild(image);
+    
+    previewCard.scrollTop = 860 * previewContainer.childElementCount;
   });
 
   socket.on("task_finished", (data) => {
@@ -59,26 +110,24 @@ window.onload = () => {
     if (data.errors) {
       message = "<span uk-icon='icon: close'></span> " + data.message;
       status = "danger";
-    } else {
-      previewImage.setAttribute("src", data.sku + ".jpeg");
     }
 
     UIkit.notification({
       message: message,
       status: status,
-      pos: "top-right",
+      pos: "top-center",
       timeout: 5000,
     });
 
-    uploadSpinner.style.display = "none";
-    uploadBtn.removeAttribute("disabled");
+    enableButtons();
     progressBar.setAttribute("value", data.progress);
   });
 
   uploadBtn.addEventListener("click", (event) => {
     progressBar.setAttribute("value", 0);
-    uploadBtn.setAttribute("disabled", "true");
-    uploadSpinner.style.display = "inline-block";
+
+    errorsConsole.innerHTML = "<p><strong>Errors Console</strong></p>";
+    disableButtons();
     event.preventDefault();
 
     const formdata = new FormData(uploadForm);
@@ -86,14 +135,13 @@ window.onload = () => {
     fetch("/upload", { method: "POST", body: formdata })
       .then(async (data) => {
         const response = await data.json();
-        console.log(response);
         if (data.status != 200) {
-          uploadSpinner.style.display = "none";
-          uploadBtn.removeAttribute("disabled");
+          enableButtons();
         }
       })
       .catch((err) => {
         console.log(err);
+        enableButtons();
       });
   });
 
@@ -161,4 +209,20 @@ window.onload = () => {
         console.log(err);
       });
   });
+
+  document
+    .querySelector("#open-source-folder-btn")
+    .addEventListener("click", (event) => {
+      fetch("/config/source", {
+        method: "POST",
+      }).then(() => {});
+    });
+
+  document
+    .querySelector("#open-output-folder-btn")
+    .addEventListener("click", (event) => {
+      fetch("/config/output", {
+        method: "POST",
+      }).then(() => {});
+    });
 };

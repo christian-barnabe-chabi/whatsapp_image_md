@@ -4,7 +4,6 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 
-var indexRouter = require("./routes/index");
 const uploadRouter = require("./routes/upload");
 const configRouter = require("./routes/settings");
 require("dotenv").config();
@@ -29,14 +28,14 @@ app.set("socketio", io);
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
-// app.use(logger('dev'));
+app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.static(require("./config/folders.json").outFolder));
 
-app.use("/", indexRouter);
+app.use("/", uploadRouter);
 app.use("/upload", uploadRouter);
 app.use("/config", configRouter);
 
@@ -52,6 +51,8 @@ app.use(function (err, req, res, next) {
   res.locals.error = req.app.get("env") === "development" ? err : {};
 
   // render the error page
+  console.log("================ ERROR ========================");
+  console.log(err);
   res.status(err.status || 500);
   res.render("error");
 });

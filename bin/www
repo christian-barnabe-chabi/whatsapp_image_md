@@ -4,6 +4,8 @@
  * Module dependencies.
  */
 
+const open  = require('open');
+
 var {app, server} = require('../app');
 var debug = require('debug')('whatsapp-image:server');
 // var http = require('http');
@@ -12,7 +14,7 @@ var debug = require('debug')('whatsapp-image:server');
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(process.env.PORT || '62528');
 app.set('port', port);
 
 /**
@@ -87,4 +89,8 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+
+  // open(`http://localhost:${port}`);
 }
+
+module.exports = {server, port};

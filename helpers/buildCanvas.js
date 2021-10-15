@@ -175,6 +175,11 @@ function drawImage3(canvasData) {
                 );
                 canvas.createJPEGStream({ quality: 1 }).pipe(out);
                 out.on("finish", () => {
+                  if(canvasData.socket != undefined) {
+                    canvasData.socket.emit('update_image', canvasData.sku);
+                    canvasData.socket.emit('message', `${canvasData.sku} built successfully`);
+                  }
+
                   if (process.env.DEBUG === "true")
                     console.log(path.join(outFolder, `${canvasData.sku}.jpeg`));
                 });
