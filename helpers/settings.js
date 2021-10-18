@@ -43,7 +43,8 @@ function settings(req, res) {
     }
 
     config.outFolder = req.body.outputFolder;
-    return res.json({ success: true, message: "Updated. Please restart the app" });
+    res.json({ success: true, message: "Updated. Please launch the app again" });
+    process.exit(1);
   }
 
   if (req.body.sourceFolder != undefined) {

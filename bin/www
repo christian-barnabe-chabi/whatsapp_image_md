@@ -90,7 +90,9 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 
-  // open(`http://localhost:${port}`);
+  const spawn = await open(`http://localhost:${port}`, );
+
+  // spawn.addListener('close', open(require('../config/folders.json').outFolder));
 }
 
 module.exports = {server, port};

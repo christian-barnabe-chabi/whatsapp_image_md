@@ -4,11 +4,12 @@
   "private": true,
   "description": "Social Media Image Generator Application",
   "license": "MIT",
-  "main": "main.js",
+  "main": "./bin/www",
   "author": "Christian Barnabe CHABI",
   "bin": "./bin/www",
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "forever ./bin/www",
+    "stop": "forever stop",
     "start_electron": "electron .",
     "rebuild": "electron-rebuild"
   },
@@ -23,6 +24,7 @@
     "dotenv": "^10.0.0",
     "excel": "^1.0.1",
     "express": "~4.16.1",
+    "forever": "^4.0.1",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
     "jimp": "^0.16.1",
@@ -34,7 +36,5 @@
     "uuid": "^8.3.2",
     "woocommerce-api": "^1.5.0"
   },
-  "devDependencies": {
-    "electron": "^15.1.2"
-  }
+  "devDependencies": {}
 }

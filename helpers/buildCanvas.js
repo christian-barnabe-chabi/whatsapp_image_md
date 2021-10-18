@@ -54,9 +54,9 @@ function drawImage1(canvasData) {
         .cover(image1Width, image1Height)
         .quality(100)
         .write(temp, (err, jimp) => {
-          if (process.env.DEBUG == "true") {
-            console.log(chalk.yellow.bold("Save complete 1"));
-          }
+          // if (process.env.DEBUG == "true") {
+          //   console.log(chalk.yellow.bold("Save complete 1"));
+          // }
 
           loadImage(temp).then((image) => {
             image1Ctx.drawImage(image, 0, 0, image1Width, image1Height);
@@ -94,9 +94,9 @@ function drawImage2(canvasData) {
         .cover(image2Width, image2Height)
         .quality(100)
         .write(temp, (err, jimp) => {
-          if (process.env.DEBUG == "true") {
-            console.log(chalk.yellow.bold("Save complete 2"));
-          }
+          // if (process.env.DEBUG == "true") {
+          //   console.log(chalk.yellow.bold("Save complete 2"));
+          // }
 
           loadImage(temp).then((image) => {
             image1Ctx.drawImage(image, 0, 0, image2Width, image2Height);
@@ -141,9 +141,9 @@ function drawImage3(canvasData) {
         .cover(image3Width, image3Height)
         .quality(100)
         .write(temp, (err, jimp) => {
-          if (process.env.DEBUG == "true") {
-            console.log(chalk.yellow.bold("Save complete 3"));
-          }
+          // if (process.env.DEBUG == "true") {
+          //   console.log(chalk.yellow.bold("Save complete 3"));
+          // }
 
           loadImage(temp).then((image) => {
             image1Ctx.drawImage(image, 0, 0, image3Width, image3Height);
@@ -180,8 +180,9 @@ function drawImage3(canvasData) {
                     canvasData.socket.emit('message', `${canvasData.sku} built successfully`);
                   }
 
-                  if (process.env.DEBUG === "true")
-                    console.log(path.join(outFolder, `${canvasData.sku}.jpeg`));
+                  // if (process.env.DEBUG === "true") {
+                  //   console.log(path.join(outFolder, `${canvasData.sku}.jpeg`));
+                  // }
                 });
               })
               .then(() => {

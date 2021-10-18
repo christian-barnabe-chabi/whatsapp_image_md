@@ -11,14 +11,13 @@ window.onload = () => {
   const sourceForm = document.querySelector("#set-source-folder-form");
 
   const previewImage = document.querySelector("#preview-image");
-  const previewContainer = document.querySelector("#preview-container");
-  const previewCard = document.querySelector("#preview-card");
 
   const socketMessage = document.querySelector("#socket-message");
 
   const errorsConsole = document.querySelector("#errors");
 
   socketMessage.style.transition = "opacity 0.5s ease";
+  previewImage.style.transition  = "opacity 0.5s ease";
 
   const socket = io();
 
@@ -46,7 +45,12 @@ window.onload = () => {
   uploadSpinner.style.display = "none";
 
   socket.on("connect", () => {
-    // console.log("socket connected");
+    UIkit.notification({
+      message: "Reconnected",
+      status: "success",
+      pos: "bottom-center",
+      timeout: 5000,
+    });
   });
 
   socket.on("disconnect", () => {
@@ -90,17 +94,8 @@ window.onload = () => {
   });
 
   socket.on("update_image", sku => {
-    previewImage.remove();
-
-    const image = new Image(555.5, 833.25);
-    image.src = `${sku}.jpeg`;
-    image.style.marginBottom = "5px";
-    const caption = document.createElement("p");
-    caption.innerText = sku;
-    previewContainer.appendChild(caption);
-    previewContainer.appendChild(image);
-    
-    previewCard.scrollTop = 860 * previewContainer.childElementCount;
+    previewImage.style.top = "0px";
+    previewImage.src = `${sku}.jpeg`;
   });
 
   socket.on("task_finished", (data) => {

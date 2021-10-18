@@ -199,8 +199,6 @@ function getImages(sku) {
 
   const [fullSku, category, serie] = regex.exec(sku);
 
-  // TODO check path
-
   const { sourceFolder } = require("../config/folders.json");
   const skuPath = path.join(sourceFolder, category, fullSku);
 
@@ -235,16 +233,19 @@ function getPaths(pathObject) {
       });
     } else {
       if (pathObject.hasOwnProperty("path")) {
+
+        const stats = fs.statSync(pathObject.path);
+
         pathObject.image = pathObject.path;
         const { sourceFolder } = require("../config/folders.json");
         const shortPath = pathObject.path
           .replace(sourceFolder, "")
           .replace(/(\\|\/)/gi, "/")
           .replace(/^(\\|\/)/gi, "");
-        // const shortPath = pathObject.path.replace(process.env.IMAGE_SOURCE_FOLDER, "").replace(/(\\|\/)/gi, "/").replace(/^(\\|\/)/gi, "");
         const [category, sku, color, imageName] = shortPath.split("/");
         pathObject.sku = sku;
         pathObject.color = color;
+        pathObject.size = stats.size;
         delete pathObject.path;
         delete pathObject.name;
 
@@ -261,26 +262,24 @@ function processQueue(skuData, cb) {
   getImages(skuData.sku).then((data) => {
 
     let images = [];
-    const usedColors = [];
 
-    for (imageData of data.imageSet) {
-      if (usedColors.includes(imageData.color)) {
-        continue;
-      }
-
-      if (/cover/.test(imageData.image)) {
-        images.unshift(imageData.image);
-      } else {
-        images.push(imageData.image);
-      }
-      usedColors.push(imageData.color);
-    }
-
-    if(images.length == 0) {
+    if(data.imageSet.length == 0) {
       skuData.error = `Images not found for ${skuData.sku}`;
       cb(skuData);
       return;
     }
+
+    let topSize = 0;
+    data.imageSet.map((value, index) => {
+      if(/cover/gi.test(value.image)) {
+        if(value.size > topSize) {
+          topSize = value.size;
+          images.unshift(value.image);
+          return;
+        }
+        images.push(value.image);
+      }
+    });
 
     if (images.length < 3) {
       for (imageData of data.imageSet) {
