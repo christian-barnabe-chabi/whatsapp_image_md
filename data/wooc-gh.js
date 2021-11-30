@@ -20,18 +20,19 @@ function woocGhana(slug, next = null) {
       next({ error: true, message: `God ${data.statusCode} from woocom` });
     }
 
-    const productData = JSON.parse(data.body);
-
-    // data
-
-    if (productData.length === 0) {
+    try {
+      const productData = JSON.parse(data.body);
+      if (productData.length === 0) {
+        next({ error: true, message: `No product with slug ${slug} found` });
+        return;
+      }
+      if (next) {
+        next(productData[0]);
+      }
+      
+    } catch (error) {
       next({ error: true, message: `No product with slug ${slug} found` });
       return;
-    }
-
-    // body
-    if (next) {
-      next(productData[0]);
     }
   });
 }

@@ -1,0 +1,20 @@
+2154 x 419
+
+
+w -> h0
+2154 => 419
+157*419/2154
+
+
+
+
+poids des images
+freegift
+email -> to woocom message
+
+programme de tontine
+
+
+background: {
+  linear-gradient(90deg,#34a853 4%,#4285f4 0%) top/100% 34% no-repeat,linear-gradient(90deg,#fbbc04 50%,#4285f4 0%) top/100% 82% no-repeat,linear-gradient(90deg,#fbbc04 10%,#ea4335 0%) top/100% 100%
+}

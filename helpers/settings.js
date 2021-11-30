@@ -43,6 +43,12 @@ function settings(req, res) {
     }
 
     config.outFolder = req.body.outputFolder;
+
+    fs.writeSync(
+      fs.openSync(path.join(__dirname, "../", "config", "folders.json"), "w"),
+      JSON.stringify(config)
+    );
+
     res.json({ success: true, message: "Updated. Please launch the app again" });
     process.exit(1);
   }

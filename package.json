@@ -8,8 +8,9 @@
   "author": "Christian Barnabe CHABI",
   "bin": "./bin/www",
   "scripts": {
-    "start": "forever ./bin/www",
-    "stop": "forever stop",
+    "start_": "forever ./bin/www",
+    "start": "nodemon ./bin/www",
+    "stop": "forever stopall",
     "start_electron": "electron .",
     "rebuild": "electron-rebuild"
   },
